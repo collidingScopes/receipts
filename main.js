@@ -173,13 +173,13 @@ function drawReceiptHeader() {
     
     // Draw title (top line)
     processedCtx.textAlign = 'left';
-    processedCtx.font = 'bold 28px "Courier New", monospace';
+    processedCtx.font = 'bold 36px "Courier New", monospace';
     processedCtx.fillStyle = '#000000';
     processedCtx.fillText(title, leftMargin, titleY);
     
     // Draw subtitle (second line - left side)
     processedCtx.textAlign = 'left';
-    processedCtx.font = '20px "Courier New", monospace';
+    processedCtx.font = '28px "Courier New", monospace';
     processedCtx.fillText(subtitle, leftMargin, subtitleY);
     
     // Draw date (second line - right side)
