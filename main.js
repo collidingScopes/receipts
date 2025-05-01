@@ -1,4 +1,3 @@
-
 // DOM elements
 const fileInput = document.getElementById('file-input');
 const uploadBtn = document.getElementById('upload-btn');
@@ -12,12 +11,20 @@ const resolutionValue = document.getElementById('resolution-value');
 const spacingValue = document.getElementById('spacing-value');
 const processedCanvas = document.getElementById('canvas-processed');
 
+// Receipt header elements
+const headerLine1 = document.getElementById('header-line1');
+const headerLine2 = document.getElementById('header-line2');
+const headerDate = document.getElementById('header-date');
+
 // Canvas contexts
 const processedCtx = processedCanvas.getContext('2d');
 
 // Default canvas size
 processedCanvas.width = 512;
 processedCanvas.height = 512;
+
+// Header height in pixels - space to add at the top of the canvas
+const HEADER_HEIGHT = 100;
 
 // Unicode block levels (darkest to lightest)
 const blocks = [
@@ -40,6 +47,66 @@ brightnessValue.textContent = brightnessSlider.value;
 resolutionValue.textContent = resolutionSlider.value;
 spacingValue.textContent = spacingSlider.value;
 
+// Set current date in the header date input
+function setCurrentDate() {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  
+  headerDate.value = `${month}.${day}.${year} ${hours}:${minutes}`;
+}
+
+// Load default image on startup
+window.addEventListener('DOMContentLoaded', function() {
+  setCurrentDate();
+  loadDefaultImage();
+  
+  // Add event listeners for header text inputs
+  headerLine1.addEventListener('input', updateAsciiArt);
+  headerLine2.addEventListener('input', updateAsciiArt);
+  headerDate.addEventListener('input', updateAsciiArt);
+});
+
+// Function to load the default image
+function loadDefaultImage() {
+  const defaultImagePath = 'assets/obama.png';
+  
+  const img = new Image();
+  img.onload = () => {
+    originalImage = img;
+    
+    // Resize canvas to match image aspect ratio plus header space
+    const maxDimension = 1024;
+    let w, h;
+    
+    if (img.width >= img.height) {
+      w = maxDimension;
+      h = (img.height / img.width) * maxDimension;
+    } else {
+      h = maxDimension;
+      w = (img.width / img.height) * maxDimension;
+    }
+    
+    // Resize processed canvas and add header height
+    processedCanvas.width = w;
+    processedCanvas.height = h + HEADER_HEIGHT;
+
+    // Update ASCII art with a slight delay to ensure canvas is ready
+    setTimeout(() => {
+        updateAsciiArt();
+    }, 300);
+  };
+  
+  img.onerror = () => {
+    console.error('Error loading default image:', defaultImagePath);
+  };
+  
+  img.src = defaultImagePath;
+}
+
 // Handle file upload button
 uploadBtn.addEventListener('click', () => {
   fileInput.click();
@@ -56,7 +123,7 @@ fileInput.addEventListener('change', (e) => {
       img.onload = () => {
         originalImage = img;
         
-        // Resize canvas to match image aspect ratio
+        // Resize canvas to match image aspect ratio plus header height
         const maxDimension = 1024;
         let w, h;
         
@@ -68,9 +135,9 @@ fileInput.addEventListener('change', (e) => {
           w = (img.width / img.height) * maxDimension;
         }
         
-        // Resize processed canvas
+        // Resize processed canvas and add header height
         processedCanvas.width = w;
-        processedCanvas.height = h;
+        processedCanvas.height = h + HEADER_HEIGHT;
     
         setTimeout(() => {
             updateAsciiArt();
@@ -82,6 +149,53 @@ fileInput.addEventListener('change', (e) => {
   }
 });
 
+// Function to draw receipt header
+function drawReceiptHeader() {
+  const canvasWidth = processedCanvas.width;
+  
+  // Clear the header area
+  processedCtx.fillStyle = '#ffffff';
+  processedCtx.fillRect(0, 0, canvasWidth, HEADER_HEIGHT);
+  
+  // Set text properties
+  processedCtx.font = '20px "Courier New", monospace';
+  processedCtx.fillStyle = '#000000';
+  
+  // Get header text values
+  const title = headerLine1.value || "[TITLE]";
+  const subtitle = headerLine2.value || "[SUBTITLE]";
+  const date = headerDate.value || "";
+  
+  // Calculate positions
+  const leftMargin = 20;
+  const rightMargin = canvasWidth - 20;
+  const titleY = 40;
+  const subtitleY = 70;
+
+// Draw title (with bold font)(top line)
+processedCtx.textAlign = 'left';
+processedCtx.font = 'bold 28px "Courier New", monospace';
+processedCtx.fillText(title, leftMargin, titleY);
+
+// Switch back to normal font
+processedCtx.font = '20px "Courier New", monospace';
+    
+  // Draw subtitle and date (second line)
+  processedCtx.textAlign = 'left';
+  processedCtx.fillText(subtitle, leftMargin, subtitleY);
+  
+  processedCtx.textAlign = 'right';
+  processedCtx.fillText(date, rightMargin, subtitleY);
+  
+  // Draw dotted line at bottom of header
+  processedCtx.beginPath();
+  processedCtx.setLineDash([5, 5]);
+  processedCtx.moveTo(0, HEADER_HEIGHT - 10);
+  processedCtx.lineTo(canvasWidth, HEADER_HEIGHT - 10);
+  processedCtx.stroke();
+  processedCtx.setLineDash([]);
+}
+
 // Function to update the ASCII art
 function updateAsciiArt() {
   if (!originalImage) return;
@@ -91,18 +205,25 @@ function updateAsciiArt() {
   const spacing = parseFloat(spacingSlider.value);
   
   // Clear the canvas
-  processedCtx.fillStyle = '#000000';
+  processedCtx.fillStyle = '#ffffff';
   processedCtx.fillRect(0, 0, processedCanvas.width, processedCanvas.height);
+  
+  // Draw the receipt header
+  drawReceiptHeader();
   
   // Calculate the number of columns and rows
   const canvasWidth = processedCanvas.width;
-  const canvasHeight = processedCanvas.height;
+  const canvasHeight = processedCanvas.height - HEADER_HEIGHT; // Adjust for header
   
   const cols = resolution;
   const rows = Math.floor((cols * canvasHeight) / canvasWidth / 2); // Adjust for character aspect ratio
   
   const cellWidth = canvasWidth / cols;
   const cellHeight = canvasHeight / rows;
+  
+  // Set the black background for the ASCII art area
+  processedCtx.fillStyle = '#000000';
+  processedCtx.fillRect(0, HEADER_HEIGHT, canvasWidth, canvasHeight);
   
   // Create a temporary canvas to sample pixels from the original image
   const tempCanvas = document.createElement('canvas');
@@ -137,8 +258,8 @@ function updateAsciiArt() {
       const blockIndex = Math.floor((1 - pixelBrightness) * (blocks.length - 1));
       const char = blocks[Math.min(Math.max(blockIndex, 0), blocks.length - 1)];
       
-      // Draw character
-      processedCtx.fillText(char, x * cellWidth, y * cellHeight);
+      // Draw character (offset by header height)
+      processedCtx.fillText(char, x * cellWidth, HEADER_HEIGHT + y * cellHeight);
     }
   }
 }
@@ -169,7 +290,6 @@ spacingSlider.addEventListener('input', function() {
 saveBtn.addEventListener('click', function() {
   if (!originalImage) return;
   
-  
   // Create a temporary link element
   const link = document.createElement('a');
   link.download = 'receipt.png';
@@ -187,6 +307,10 @@ resetBtn.addEventListener('click', function() {
   resolutionValue.textContent = resolutionSlider.value;
   spacingValue.textContent = spacingSlider.value;
   
+  // Reset header fields to defaults
+  headerLine1.value = "[TITLE]";
+  headerLine2.value = "[SUBTITLE]";
+  setCurrentDate();
   
   if (originalImage) {
       updateAsciiArt();
