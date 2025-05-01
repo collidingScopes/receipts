@@ -151,49 +151,48 @@ fileInput.addEventListener('change', (e) => {
 
 // Function to draw receipt header
 function drawReceiptHeader() {
-  const canvasWidth = processedCanvas.width;
-  
-  // Clear the header area
-  processedCtx.fillStyle = '#ffffff';
-  processedCtx.fillRect(0, 0, canvasWidth, HEADER_HEIGHT);
-  
-  // Set text properties
-  processedCtx.font = '20px "Courier New", monospace';
-  processedCtx.fillStyle = '#000000';
-  
-  // Get header text values
-  const title = headerLine1.value || "[TITLE]";
-  const subtitle = headerLine2.value || "[SUBTITLE]";
-  const date = headerDate.value || "";
-  
-  // Calculate positions
-  const leftMargin = 20;
-  const rightMargin = canvasWidth - 20;
-  const titleY = 40;
-  const subtitleY = 70;
-
-// Draw title (with bold font)(top line)
-processedCtx.textAlign = 'left';
-processedCtx.font = 'bold 28px "Courier New", monospace';
-processedCtx.fillText(title, leftMargin, titleY);
-
-// Switch back to normal font
-processedCtx.font = '20px "Courier New", monospace';
+    const canvasWidth = processedCanvas.width;
     
-  // Draw subtitle and date (second line)
-  processedCtx.textAlign = 'left';
-  processedCtx.fillText(subtitle, leftMargin, subtitleY);
+    // Clear the header area
+    processedCtx.fillStyle = '#ffffff';
+    processedCtx.fillRect(0, 0, canvasWidth, HEADER_HEIGHT);
+    
+    // Get header text values
+    const title = headerLine1.value || "[TITLE]";
+    const subtitle = headerLine2.value || "[SUBTITLE]";
+    const date = headerDate.value || "";
+    
+    // Calculate positions
+    const leftMargin = 20;
+    const rightMargin = canvasWidth - 20;
+    const titleY = 40;
+    const subtitleY = 70;
   
-  processedCtx.textAlign = 'right';
-  processedCtx.fillText(date, rightMargin, subtitleY);
-  
-  // Draw dotted line at bottom of header
-  processedCtx.beginPath();
-  processedCtx.setLineDash([5, 5]);
-  processedCtx.moveTo(0, HEADER_HEIGHT - 10);
-  processedCtx.lineTo(canvasWidth, HEADER_HEIGHT - 10);
-  processedCtx.stroke();
-  processedCtx.setLineDash([]);
+    // Set consistent text baseline for all text
+    processedCtx.textBaseline = 'middle';
+    
+    // Draw title (top line)
+    processedCtx.textAlign = 'left';
+    processedCtx.font = 'bold 28px "Courier New", monospace';
+    processedCtx.fillStyle = '#000000';
+    processedCtx.fillText(title, leftMargin, titleY);
+    
+    // Draw subtitle (second line - left side)
+    processedCtx.textAlign = 'left';
+    processedCtx.font = '20px "Courier New", monospace';
+    processedCtx.fillText(subtitle, leftMargin, subtitleY);
+    
+    // Draw date (second line - right side)
+    processedCtx.textAlign = 'right';
+    processedCtx.fillText(date, rightMargin, subtitleY);
+    
+    // Draw dotted line at bottom of header
+    processedCtx.beginPath();
+    processedCtx.setLineDash([5, 5]);
+    processedCtx.moveTo(0, HEADER_HEIGHT - 10);
+    processedCtx.lineTo(canvasWidth, HEADER_HEIGHT - 10);
+    processedCtx.stroke();
+    processedCtx.setLineDash([]);
 }
 
 // Function to update the ASCII art

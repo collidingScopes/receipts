@@ -99,7 +99,7 @@ body {
     background-color: #666666;
     color: #ffffff;
     border: 1px solid #ffffff;
-    padding: 10px 20px;
+    padding: 8px;
     cursor: pointer;
     font-family: 'Courier New', monospace;
     font-size: 16px;
@@ -207,3 +207,18 @@ body {
     text-align: left;
     padding: 5px;
   }
+
+#links-para{
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-family: Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+a {
+    color: #0000ff
+}
+a:visited {
+    color: #0000ff
+}
